@@ -143,6 +143,86 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderLeaderboard(sortedData);
         });
 
+        let searchBar=document.getElementById("search-bar");
+
+        searchBar.addEventListener("input",(e)=>{
+            
+            let searchedData=[];
+            let inputed_value=e.target.value;
+            for(let currData of data){
+                if( currData.name.substring(0,inputed_value.length)== inputed_value.toUpperCase() ){
+                    searchedData.push(currData);
+                }
+            }
+
+            renderLeaderboard(searchedData);
+
+        })
+        
+        function getlabelsForChart(){
+            let labels=[]
+            for(let currData of data){
+                let present=false;
+                for(let label of labels){
+                    if(label==currData.section){
+                        present=true;
+                    } 
+                }
+                if(!present){
+                    labels.push(currData.section);
+                }
+            }
+            return labels;
+        }
+
+        function getlabelCnts(labels){
+            const cnts=new Array(labels.length);
+            cnts.fill(0);
+
+            for(let currData of data){
+                cnts[labels.indexOf(currData.section)]++
+            }
+
+            return cnts;
+        }
+
+        function generateRandomColor(len){
+            let colours=[];
+            let max=255;
+            let min=0;
+            for(let i=0;i<len;++i){
+                let randomNum1=Math.floor( Math. random() * (max - min) + min);
+                let randomNum2=Math.floor( Math. random() * (max - min) + min);
+                let randomNum3=Math.floor( Math. random() * (max - min) + min);
+                colours.push("rgb("+randomNum1.toString()+","+randomNum2.toString()+","+randomNum3.toString()+")")
+            }
+            console.log(colours)
+            return colours;
+        }
+
+        function createChart(){
+            let labels=getlabelsForChart();
+            let labelCnts=getlabelCnts(labels);
+            let randomClrs=generateRandomColor(labels.length);            
+            const chartData = {
+                labels: labels,
+                datasets: [{
+                  label: 'My First Dataset',
+                  data: labelCnts,
+                  backgroundColor: randomClrs,
+                  hoverOffset: 4
+                }]
+            }
+    
+            new Chart("myChart", {
+                type: 'pie',
+                data: chartData,
+                options: {}
+            });
+        }
+
+        createChart();
+
     } catch (error) {
         console.error('Error fetching data:', error);
     }
